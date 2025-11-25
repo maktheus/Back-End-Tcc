@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/example/back-end-tcc/docs"
 	"github.com/example/back-end-tcc/pkg/config"
 	"github.com/example/back-end-tcc/pkg/logger"
 	"github.com/example/back-end-tcc/pkg/models"
@@ -155,6 +156,12 @@ func main() {
 		http.MethodGet:  traceHTTP.List,
 	}))
 	mux.HandleFunc("/leaderboard", leaderboardHTTP.List)
+	mux.HandleFunc("/swagger.json", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		if _, err := w.Write(docs.OpenAPISpec); err != nil && apiLog != nil {
+			apiLog.Println("swagger serve error:", err)
+		}
+	})
 
 	apiLog.Printf("API gateway listening on :%d", cfg.HTTPPort)
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", cfg.HTTPPort), mux); err != nil {
